@@ -36,7 +36,7 @@ public class CreatePaymentServiceTest {
         dto.setCreditCardNumber("4539578763621486");
         dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
         dto.setDocumentId("12345678901");
-        dto.setAmount(new BigDecimal("300.00"));
+        dto.setAmount("300.00");
 
         PaymentModel mappedModel = new PaymentMapper().map(dto);
 
@@ -60,7 +60,7 @@ public class CreatePaymentServiceTest {
         dto.setCreditCardNumber("4539578763621486");
         dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
         dto.setDocumentId("123");
-        dto.setAmount(new BigDecimal("300.00"));
+        dto.setAmount("300.00");
 
         assertThrows(InvalidDocumentException.class, () -> {
             createPaymentService.execute(dto);
@@ -74,7 +74,7 @@ public class CreatePaymentServiceTest {
         dto.setCreditCardNumber("1111111111111111");
         dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
         dto.setDocumentId("12345678901");
-        dto.setAmount(new BigDecimal("300.00"));
+        dto.setAmount("300.00");
 
         assertThrows(InvalidCardNumberException.class, () -> {
             createPaymentService.execute(dto);
@@ -88,7 +88,7 @@ public class CreatePaymentServiceTest {
         dto.setCreditCardNumber("4539578763621486");
         dto.setPaymentMethod(PaymentType.BOLETO);
         dto.setDocumentId("12345678901");
-        dto.setAmount(new BigDecimal("300.00"));
+        dto.setAmount("300.00");
 
         assertThrows(CardNumberNotAllowedException.class, () -> {
             createPaymentService.execute(dto);
@@ -96,13 +96,12 @@ public class CreatePaymentServiceTest {
     }
 
     @Test
-    void shouldCreatePaymentWithNullAmount() {
+    void shouldNotCreatePaymentWithNullAmount() {
         PaymentDTO dto = new PaymentDTO();
         dto.setDebitCode(1L);
         dto.setCreditCardNumber("4539578763621486");
         dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
         dto.setDocumentId("12345678901");
-        dto.setAmount(null);
 
         assertThrows(InvalidAmountException.class, () -> {
             createPaymentService.execute(dto);

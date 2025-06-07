@@ -53,26 +53,27 @@ public class PaymentModel {
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
 
-        if (documentId != null) {
-            if (documentId.length() == 11) {
-                this.documentType = DocumentType.CPF;
-            } else if (documentId.length() == 14) {
-                this.documentType = DocumentType.CNPJ;
-            } else {
-                throw new InvalidDocumentException(documentId);
-            }
+        if (documentId == null) return;
+
+        switch (documentId.length()) {
+            case 11 -> this.documentType = DocumentType.CPF;
+            case 14 -> this.documentType = DocumentType.CNPJ;
+            default -> throw new InvalidDocumentException();
         }
     }
 
     public void setCreditCardNumber(String creditCardNumber) {
-        if (creditCardNumber != null) {
-            if (this.paymentMethod == PaymentType.CARTAO_CREDITO || this.paymentMethod == PaymentType.CARTAO_DEBITO) {
-                if (!LuhnValidation.execute(creditCardNumber)) {
-                    throw new InvalidCardNumberException(creditCardNumber);
-                }
-                this.creditCardNumber = creditCardNumber;
-            } else {
-                throw new CardNumberNotAllowedException();
+        this.creditCardNumber = creditCardNumber;
+
+        boolean isCardPayment = this.paymentMethod == PaymentType.CARTAO_CREDITO || this.paymentMethod == PaymentType.CARTAO_DEBITO;
+
+        if (!isCardPayment && creditCardNumber != null) {
+            throw new CardNumberNotAllowedException();
+        }
+
+        if (isCardPayment) {
+            if (creditCardNumber == null || !LuhnValidation.execute(creditCardNumber)) {
+                throw new InvalidCardNumberException();
             }
         }
     }
@@ -81,6 +82,6 @@ public class PaymentModel {
         if (amount == null) {
             throw new InvalidAmountException();
         }
-
+        this.amount = amount;
     }
 }

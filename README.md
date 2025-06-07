@@ -65,3 +65,7 @@ A aplicação estará disponível em: `http://localhost:8080`
 
 ---
 
+## Testes
+
+Para executar os testes da aplicação, basta rodar no terminal:
+`./mvnw test`

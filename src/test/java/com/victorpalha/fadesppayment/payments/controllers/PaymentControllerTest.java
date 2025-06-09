@@ -13,9 +13,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -260,5 +262,113 @@ public class PaymentControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].debitCode").value(5))
                 .andExpect(jsonPath("$[0].documentId").value("22222222222"));
+    }
+
+    @Test
+    public void shouldUpdatePaymentStatusSuccessfully() throws Exception {
+        PaymentDTO dto = new PaymentDTO();
+        dto.setDebitCode(10L);
+        dto.setCreditCardNumber("4539578763621486");
+        dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
+        dto.setDocumentId("12345678901");
+        dto.setAmount("600.00");
+
+        String responseBody = mockMvc.perform(post("/api/payment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = objectMapper.readTree(responseBody).get("id").asText();
+
+        String patchBody = """
+        {
+            "status": "PROCESSADO_SUCESSO"
+        }
+        """;
+
+        mockMvc.perform(patch("/api/payment/" + id + "/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.paymentStatus").value("PROCESSADO_SUCESSO"));
+    }
+
+    @Test
+    public void shouldFailWhenUpdatingNonexistentPayment() throws Exception {
+        String patchBody = """
+        {
+            "status": "PROCESSADO_SUCESSO"
+        }
+        """;
+        UUID randomPaymentId = UUID.randomUUID();
+
+        mockMvc.perform(patch("/api/payment/"+randomPaymentId+"/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchBody))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Payment Not Found"));
+    }
+
+    @Test
+    public void shouldFailWhenSendingInvalidStatus() throws Exception {
+        PaymentDTO dto = new PaymentDTO();
+        dto.setDebitCode(11L);
+        dto.setCreditCardNumber("4539578763621486");
+        dto.setPaymentMethod(PaymentType.CARTAO_DEBITO);
+        dto.setDocumentId("12345678901");
+        dto.setAmount("150.00");
+
+        String responseBody = mockMvc.perform(post("/api/payment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = objectMapper.readTree(responseBody).get("id").asText();
+
+        String patchBody = """
+        {
+            "status": "INVALIDO"
+        }
+        """;
+
+        mockMvc.perform(patch("/api/payment/" + id + "/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldFailWhenStatusIsMissingInRequestBody() throws Exception {
+        PaymentDTO dto = new PaymentDTO();
+        dto.setDebitCode(12L);
+        dto.setCreditCardNumber("4539578763621486");
+        dto.setPaymentMethod(PaymentType.CARTAO_DEBITO);
+        dto.setDocumentId("12345678901");
+        dto.setAmount("100.00");
+
+        String responseBody = mockMvc.perform(post("/api/payment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = objectMapper.readTree(responseBody).get("id").asText();
+
+        String patchBody = "{}";
+
+        mockMvc.perform(patch("/api/payment/" + id + "/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.status").exists());
     }
 }

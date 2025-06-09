@@ -5,7 +5,6 @@ import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentStat
 import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.PaymentNotFoundException;
 import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.PaymentStatusErrorException;
 import com.victorpalha.fadesppayment.payments.repository.PaymentRepository;
-import com.victorpalha.fadesppayment.payments.services.FetchPaymentsService;
 import com.victorpalha.fadesppayment.payments.services.UpdatePaymentStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,13 +47,13 @@ public class UpdatePaymentStatusServiceTest {
     @Test
     void shouldUpdateStatusSuccessfully() {
         mockPayment.setPaymentStatus(PaymentStatusType.PENDENTE);
-        when(paymentRepository.findById(mockPayment.getId().toString()))
+        when(paymentRepository.findById(mockPayment.getId()))
                 .thenReturn(Optional.of(mockPayment));
         when(paymentRepository.save(mockPayment))
                 .thenReturn(mockPayment);
 
         PaymentModel result = updatePaymentStatusService.execute(
-                mockPayment.getId().toString(), PaymentStatusType.PROCESSADO_SUCESSO);
+                mockPayment.getId(), PaymentStatusType.PROCESSADO_SUCESSO);
 
         assertEquals(PaymentStatusType.PROCESSADO_SUCESSO, result.getPaymentStatus());
         verify(paymentRepository).save(mockPayment);
@@ -63,43 +61,44 @@ public class UpdatePaymentStatusServiceTest {
 
     @Test
     void shouldThrowWhenPaymentNotFound() {
-        when(paymentRepository.findById("non-existent-id"))
+        UUID randomPaymentId = UUID.randomUUID();
+        when(paymentRepository.findById(randomPaymentId))
                 .thenReturn(Optional.empty());
 
         assertThrows(PaymentNotFoundException.class, () ->
-                updatePaymentStatusService.execute("non-existent-id", PaymentStatusType.PENDENTE));
+                updatePaymentStatusService.execute(randomPaymentId, PaymentStatusType.PENDENTE));
     }
 
     @Test
     void shouldThrowWhenStatusIsAlreadySuccess() {
         mockPayment.setPaymentStatus(PaymentStatusType.PROCESSADO_SUCESSO);
-        when(paymentRepository.findById(mockPayment.getId().toString()))
+        when(paymentRepository.findById(mockPayment.getId()))
                 .thenReturn(Optional.of(mockPayment));
 
         assertThrows(PaymentStatusErrorException.class, () ->
-                updatePaymentStatusService.execute(mockPayment.getId().toString(), PaymentStatusType.PENDENTE));
+                updatePaymentStatusService.execute(mockPayment.getId(), PaymentStatusType.PENDENTE));
     }
 
     @Test
     void shouldThrowWhenStatusFailedAndTryingToChangeToNonPending() {
         mockPayment.setPaymentStatus(PaymentStatusType.PROCESSADO_FALHA);
-        when(paymentRepository.findById(mockPayment.getId().toString()))
+        when(paymentRepository.findById(mockPayment.getId()))
                 .thenReturn(Optional.of(mockPayment));
 
         assertThrows(PaymentStatusErrorException.class, () ->
-                updatePaymentStatusService.execute(mockPayment.getId().toString(), PaymentStatusType.PROCESSADO_SUCESSO));
+                updatePaymentStatusService.execute(mockPayment.getId(), PaymentStatusType.PROCESSADO_SUCESSO));
     }
 
     @Test
     void shouldAllowChangeFromFailedToPending() {
         mockPayment.setPaymentStatus(PaymentStatusType.PROCESSADO_FALHA);
-        when(paymentRepository.findById(mockPayment.getId().toString()))
+        when(paymentRepository.findById(mockPayment.getId()))
                 .thenReturn(Optional.of(mockPayment));
         when(paymentRepository.save(mockPayment))
                 .thenReturn(mockPayment);
 
         PaymentModel result = updatePaymentStatusService.execute(
-                mockPayment.getId().toString(), PaymentStatusType.PENDENTE);
+                mockPayment.getId(), PaymentStatusType.PENDENTE);
 
         assertEquals(PaymentStatusType.PENDENTE, result.getPaymentStatus());
         verify(paymentRepository).save(mockPayment);

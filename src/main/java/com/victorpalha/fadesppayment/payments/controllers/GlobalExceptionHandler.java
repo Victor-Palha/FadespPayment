@@ -1,16 +1,14 @@
 package com.victorpalha.fadesppayment.payments.controllers;
 
 import com.victorpalha.fadesppayment.payments.controllers.errors.ErrorResponse;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.CardNumberNotAllowedException;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.InvalidAmountException;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.InvalidCardNumberException;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.InvalidDocumentException;
+import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,24 +16,39 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidDocumentException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidDocument(InvalidDocumentException ex){
-        return buildErrorResponse(ex.getMessage(), "INVALID_DOCUMENT", HttpStatus.BAD_REQUEST);
+
+    @ExceptionHandler({
+            InvalidDocumentException.class,
+            InvalidCardNumberException.class,
+            CardNumberNotAllowedException.class,
+            InvalidAmountException.class,
+            PaymentStatusErrorException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(RuntimeException ex) {
+        String code = switch (ex.getClass().getSimpleName()) {
+            case "InvalidDocumentException" -> "INVALID_DOCUMENT";
+            case "InvalidCardNumberException" -> "INVALID_CARD_NUMBER";
+            case "CardNumberNotAllowedException" -> "CARD_NUMBER_NOT_ALLOWED";
+            case "InvalidAmountException" -> "INVALID_AMOUNT";
+            case "PaymentStatusErrorException" -> "INVALID_STATUS";
+            default -> "BAD_REQUEST";
+        };
+
+        return buildErrorResponse(ex.getMessage(), code, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidCardNumberException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCard(InvalidCardNumberException ex) {
-        return buildErrorResponse(ex.getMessage(), "INVALID_CARD_NUMBER", HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return buildErrorResponse(
+                "Invalid parameter: " + ex.getName() + ". " + ex.getMessage(),
+                "BAD_REQUEST",
+                HttpStatus.BAD_REQUEST
+        );
     }
 
-    @ExceptionHandler(CardNumberNotAllowedException.class)
-    public ResponseEntity<ErrorResponse> handleCardNotAllowed(CardNumberNotAllowedException ex) {
-        return buildErrorResponse(ex.getMessage(), "CARD_NUMBER_NOT_ALLOWED", HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(InvalidAmountException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidAmount(InvalidAmountException ex) {
-        return buildErrorResponse(ex.getMessage(), "INVALID_AMOUNT", HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentNotFound(PaymentNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), "NOT_FOUND", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

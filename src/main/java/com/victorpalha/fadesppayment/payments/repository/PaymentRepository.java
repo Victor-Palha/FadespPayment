@@ -9,8 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface PaymentRepository extends JpaRepository<PaymentModel, String> {
+public interface PaymentRepository extends JpaRepository<PaymentModel, UUID> {
 
     @Query("SELECT p FROM PaymentModel p " +
             "WHERE (:debitCode IS NULL OR p.debitCode = :debitCode) " +

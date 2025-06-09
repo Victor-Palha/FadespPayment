@@ -6,7 +6,7 @@ import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.Paymen
 import com.victorpalha.fadesppayment.payments.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UpdatePaymentStatusService {
@@ -16,7 +16,7 @@ public class UpdatePaymentStatusService {
         this.paymentRepository = paymentRepository;
     }
 
-    public PaymentModel execute(String paymentId, PaymentStatusType paymentStatusType) {
+    public PaymentModel execute(UUID paymentId, PaymentStatusType paymentStatusType) {
         PaymentModel payment = paymentRepository.findById(paymentId)
                 .orElseThrow(PaymentNotFoundException::new);
 

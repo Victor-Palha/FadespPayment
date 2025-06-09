@@ -122,6 +122,7 @@ Cria um novo pagamento.
 ```
 
 - OBS: documentId representa CNPJ ou CPF e pode ser enviado tanto com ., -, / ou apenas númerico. O sistema consegue identificar o tipo de documento e salva em uma coluna para consultas futuras.
+- OBS 2: `creditCardNumber` passa pelo algoritmo de Luhn, então somente cartões validos pelo algoritmo podem ser cadastrados.
 ---
 
 ## Listar Pagamentos

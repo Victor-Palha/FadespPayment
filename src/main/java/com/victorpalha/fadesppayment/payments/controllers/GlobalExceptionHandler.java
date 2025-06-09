@@ -50,19 +50,19 @@ public class GlobalExceptionHandler {
                 ));
 
         return new ResponseEntity<>(
-                new ErrorResponse("Erro de validação", "VALIDATION_ERROR", HttpStatus.BAD_REQUEST.value(), fieldErrors),
+                new ErrorResponse("Validation Error", "VALIDATION_ERROR", HttpStatus.BAD_REQUEST.value(), fieldErrors),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadableMessage(HttpMessageNotReadableException ex) {
-        return buildErrorResponse("JSON malformado ou tipo de dado inválido", "MALFORMED_JSON", HttpStatus.BAD_REQUEST);
+        return buildErrorResponse("Invalid JSON", "MALFORMED_JSON", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        return buildErrorResponse("Erro interno no servidor", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildErrorResponse("Internal Server Error", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(String message, String code, HttpStatus status) {

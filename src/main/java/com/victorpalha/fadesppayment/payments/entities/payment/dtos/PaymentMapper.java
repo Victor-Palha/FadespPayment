@@ -1,4 +1,6 @@
-package com.victorpalha.fadesppayment.payments.entities.payment;
+package com.victorpalha.fadesppayment.payments.entities.payment.dtos;
+
+import com.victorpalha.fadesppayment.payments.entities.payment.PaymentModel;
 
 public class PaymentMapper {
     public PaymentModel map(PaymentDTO paymentDTO){

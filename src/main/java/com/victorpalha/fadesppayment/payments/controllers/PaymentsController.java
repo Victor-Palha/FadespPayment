@@ -1,7 +1,7 @@
 package com.victorpalha.fadesppayment.payments.controllers;
 
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentDTO;
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentMapper;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentDTO;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentMapper;
 import com.victorpalha.fadesppayment.payments.entities.payment.PaymentModel;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentStatusType;
 import com.victorpalha.fadesppayment.payments.services.CreatePaymentService;
@@ -42,4 +42,6 @@ public class PaymentsController {
         List<PaymentModel> payments = fetchPaymentsService.execute(debitCode, documentId, paymentStatus);
         return ResponseEntity.ok(payments);
     }
+
+
 }

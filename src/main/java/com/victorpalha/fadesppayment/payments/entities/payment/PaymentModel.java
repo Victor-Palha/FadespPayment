@@ -3,10 +3,7 @@ package com.victorpalha.fadesppayment.payments.entities.payment;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.DocumentType;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentStatusType;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentType;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.CardNumberNotAllowedException;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.InvalidAmountException;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.InvalidCardNumberException;
-import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.InvalidDocumentException;
+import com.victorpalha.fadesppayment.payments.entities.payment.exceptions.*;
 import com.victorpalha.fadesppayment.payments.entities.payment.helpers.LuhnValidation;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -83,5 +80,16 @@ public class PaymentModel {
             throw new InvalidAmountException();
         }
         this.amount = amount;
+    }
+
+    public void setPaymentStatus(PaymentStatusType paymentStatus) {
+        if (this.paymentStatus == PaymentStatusType.PROCESSADO_SUCESSO) {
+            throw new PaymentStatusErrorException("Payment already processed, you can't change it!");
+        }
+        if (this.paymentStatus == PaymentStatusType.PROCESSADO_FALHA && paymentStatus != PaymentStatusType.PENDENTE) {
+            throw new PaymentStatusErrorException("Payment status failed, it can only be changed to PENDENTE.");
+        }
+
+        this.paymentStatus = paymentStatus;
     }
 }

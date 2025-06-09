@@ -1,7 +1,7 @@
 package com.victorpalha.fadesppayment.payments.services;
 
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentDTO;
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentMapper;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentDTO;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentMapper;
 import com.victorpalha.fadesppayment.payments.entities.payment.PaymentModel;
 import com.victorpalha.fadesppayment.payments.repository.PaymentRepository;
 import org.springframework.stereotype.Service;

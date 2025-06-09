@@ -1,6 +1,6 @@
 package com.victorpalha.fadesppayment.payments.entities.payment.services;
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentDTO;
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentMapper;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentDTO;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentMapper;
 import com.victorpalha.fadesppayment.payments.entities.payment.PaymentModel;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.DocumentType;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentStatusType;
@@ -18,8 +18,6 @@ import org.mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
 
 @ExtendWith(MockitoExtension.class)
 public class CreatePaymentServiceTest {

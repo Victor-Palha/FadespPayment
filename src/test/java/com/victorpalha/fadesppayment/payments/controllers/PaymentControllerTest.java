@@ -1,7 +1,7 @@
 package com.victorpalha.fadesppayment.payments.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.victorpalha.fadesppayment.payments.entities.payment.PaymentDTO;
+import com.victorpalha.fadesppayment.payments.entities.payment.dtos.PaymentDTO;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentType;
 import com.victorpalha.fadesppayment.payments.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;

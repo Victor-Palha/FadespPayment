@@ -29,7 +29,7 @@ public class PaymentDTO {
     private String creditCardNumber;
 
     @NotBlank(message = "Document Id is required")
-    @Size(min = 11, max = 14, message = "Invalid document ID. Must be 11 (CPF) or 14 (CNPJ) digits.")
+    @Size(min = 11, message = "Invalid document ID.")
     private String documentId;
 
     @NotNull(message = "Payment Method is required")
@@ -49,5 +49,9 @@ public class PaymentDTO {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId.replaceAll("\\D", "");
     }
 }

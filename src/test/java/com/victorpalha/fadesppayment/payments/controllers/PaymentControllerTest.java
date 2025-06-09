@@ -46,7 +46,7 @@ public class PaymentControllerTest {
         dto.setDebitCode(1L);
         dto.setCreditCardNumber("4539578763621486");
         dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
-        dto.setDocumentId("12345678901");
+        dto.setDocumentId("123.456.789-01");
         dto.setAmount("300.00");
 
         mockMvc.perform(post("/api/payment")
@@ -71,7 +71,7 @@ public class PaymentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.fieldErrors.documentId").value("Invalid document ID. Must be 11 (CPF) or 14 (CNPJ) digits."));
+                .andExpect(jsonPath("$.fieldErrors.documentId").value("Invalid document ID."));
     }
 
     @Test

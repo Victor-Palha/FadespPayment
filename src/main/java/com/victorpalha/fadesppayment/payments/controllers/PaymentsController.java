@@ -6,6 +6,7 @@ import com.victorpalha.fadesppayment.payments.entities.payment.PaymentModel;
 import com.victorpalha.fadesppayment.payments.entities.payment.dtos.UpdatePaymentStatusDTO;
 import com.victorpalha.fadesppayment.payments.entities.payment.enums.PaymentStatusType;
 import com.victorpalha.fadesppayment.payments.services.CreatePaymentService;
+import com.victorpalha.fadesppayment.payments.services.DisablePaymentService;
 import com.victorpalha.fadesppayment.payments.services.FetchPaymentsService;
 import com.victorpalha.fadesppayment.payments.services.UpdatePaymentStatusService;
 import jakarta.validation.Valid;
@@ -23,11 +24,13 @@ public class PaymentsController {
     private final CreatePaymentService createPaymentService;
     private final FetchPaymentsService fetchPaymentsService;
     private final UpdatePaymentStatusService updatePaymentStatusService;
+    private final DisablePaymentService disablePaymentService;
 
-    public PaymentsController(CreatePaymentService createPaymentService, FetchPaymentsService fetchPaymentsService, UpdatePaymentStatusService updatePaymentStatusService) {
+    public PaymentsController(CreatePaymentService createPaymentService, FetchPaymentsService fetchPaymentsService, UpdatePaymentStatusService updatePaymentStatusService, DisablePaymentService disablePaymentService) {
         this.createPaymentService = createPaymentService;
         this.fetchPaymentsService = fetchPaymentsService;
         this.updatePaymentStatusService = updatePaymentStatusService;
+        this.disablePaymentService = disablePaymentService;
     }
 
     @PostMapping("/payment")
@@ -55,5 +58,11 @@ public class PaymentsController {
     ) {
         PaymentModel paymentUpdated = updatePaymentStatusService.execute(id, dto.getStatus());
         return ResponseEntity.ok(new PaymentMapper().map(paymentUpdated));
+    }
+
+    @DeleteMapping("/payment/{id}")
+    public ResponseEntity<Void> deletePayment(@PathVariable UUID id) {
+        disablePaymentService.execute(id);
+        return ResponseEntity.noContent().build();
     }
 }

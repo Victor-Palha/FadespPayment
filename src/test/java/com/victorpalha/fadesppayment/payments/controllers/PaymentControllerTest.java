@@ -18,6 +18,7 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -370,5 +371,66 @@ public class PaymentControllerTest {
                         .content(patchBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.status").exists());
+    }
+
+    @Test
+    public void shouldUpdatePaymentActiveStatus() throws Exception {
+        PaymentDTO dto = new PaymentDTO();
+        dto.setDebitCode(12L);
+        dto.setCreditCardNumber("4539578763621486");
+        dto.setPaymentMethod(PaymentType.CARTAO_DEBITO);
+        dto.setDocumentId("12345678901");
+        dto.setAmount("100.00");
+
+        String responseBody = mockMvc.perform(post("/api/payment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = objectMapper.readTree(responseBody).get("id").asText();
+
+
+        mockMvc.perform(delete("/api/payment/" + id )
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void shouldNotUpdatePaymentActiveStatus() throws Exception {
+        PaymentDTO dto = new PaymentDTO();
+        dto.setDebitCode(10L);
+        dto.setCreditCardNumber("4539578763621486");
+        dto.setPaymentMethod(PaymentType.CARTAO_CREDITO);
+        dto.setDocumentId("12345678901");
+        dto.setAmount("600.00");
+
+        String responseBody = mockMvc.perform(post("/api/payment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = objectMapper.readTree(responseBody).get("id").asText();
+
+        String patchBody = """
+        {
+            "status": "PROCESSADO_SUCESSO"
+        }
+        """;
+
+        mockMvc.perform(patch("/api/payment/" + id + "/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchBody))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/api/payment/" + id )
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
     }
 }

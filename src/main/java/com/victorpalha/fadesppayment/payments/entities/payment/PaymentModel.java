@@ -92,4 +92,11 @@ public class PaymentModel {
 
         this.paymentStatus = paymentStatus;
     }
+
+    public void setActive(boolean active) {
+        if (this.paymentStatus != PaymentStatusType.PENDENTE){
+            throw new PaymentStatusErrorException("You can't change this payment status! Only PENDENTE payments can be changed.");
+        }
+        this.active = active;
+    }
 }
